@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HFFDCR", "HFFDCR\HFFDCR.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{FC402AB1-829F-47AF-AA9F-B2C8AFD0E316}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HFFDCR.Core", "HFFDCR.Core\HFFDCR.Core.csproj", "{487FAA54-69C8-4C6D-8E2F-9CFBE13CCB10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{FC402AB1-829F-47AF-AA9F-B2C8AFD0E316}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC402AB1-829F-47AF-AA9F-B2C8AFD0E316}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC402AB1-829F-47AF-AA9F-B2C8AFD0E316}.Release|Any CPU.Build.0 = Release|Any CPU
+		{487FAA54-69C8-4C6D-8E2F-9CFBE13CCB10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{487FAA54-69C8-4C6D-8E2F-9CFBE13CCB10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{487FAA54-69C8-4C6D-8E2F-9CFBE13CCB10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{487FAA54-69C8-4C6D-8E2F-9CFBE13CCB10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

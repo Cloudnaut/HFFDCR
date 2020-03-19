@@ -1,6 +1,4 @@
-﻿/Client/bin/
-/Client/obj/
-/HFFDCR/.idea/
-/HFFDCR/bin/
-/HFFDCR/obj/
+﻿*/bin/*
+*/obj/*
+*/.idea/
 /.idea/
