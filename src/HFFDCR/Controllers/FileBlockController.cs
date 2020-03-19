@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HFFDCR.Models;
+using System.Security.Cryptography;
+using HFFDCR.Core;
+using HFFDCR.Core.Models;
+using HFFDCR.DbContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -20,36 +23,67 @@ namespace HFFDCR.Controllers
             _db = db;
         }
 
-        [HttpGet]
-        public IEnumerable<FileBlock> List() => _db.FileBlocks;
-
         [HttpGet("{fileBlockId}")]
-        public FileBlock Get([FromRoute] long fileBlockId) => _db.FileBlocks.First(fb => fb.Id == fileBlockId);
+        public FileBlock Get([FromRoute] long fileBlockId)
+        {
+            DbContext.Models.FileBlock fileBlock = _db.FileBlocks.First(fb => fb.Id == fileBlockId);
+            
+            return new FileBlock()
+            {
+                Id = fileBlock.Id,
+                FileId = fileBlock.FileId,
+                Number = fileBlock.Number,
+                Content = Convert.ToBase64String(fileBlock.Content)
+            };
+        }
 
         [HttpPost]
         public FileBlock Add([FromBody] FileBlock fileBlock)
         {
-            FileBlock createdFileBlock = _db.FileBlocks.Add(new FileBlock()
+            DbContext.Models.FileBlock createdFileBlock;
+            
+            using (MD5 md5Hash = MD5.Create())
             {
-                FileId = fileBlock.FileId,
-                Number = fileBlock.Number,
-                Content = fileBlock.Content,
-                Checksum = null
-            }).Entity;
-
+                createdFileBlock = _db.FileBlocks.Add(new DbContext.Models.FileBlock()
+                {
+                    FileId = fileBlock.FileId,
+                    Number = fileBlock.Number,
+                    Content = Convert.FromBase64String(fileBlock.Content)
+                }).Entity;
+                
+                _db.Checksums.Add(new Checksum()
+                {
+                    FileBlockId = createdFileBlock.Id,
+                    Value = MD5Utils.GetMd5Hash(md5Hash, fileBlock.Content)
+                });
+            }
             _db.SaveChanges();
-
-            return createdFileBlock;
+            
+            
+            return new FileBlock()
+            {
+                Id = createdFileBlock.Id,
+                FileId = createdFileBlock.FileId,
+                Number = createdFileBlock.Number,
+                Content = Convert.ToBase64String(createdFileBlock.Content)
+            };
         }
 
-        [HttpDelete]
-        public FileBlock Delete(long fileBlockId)
+        [HttpDelete("{fileBlockId}")]
+        public FileBlock Delete([FromRoute] long fileBlockId)
         {
             try
             {
-                FileBlock deletedFileBlock = _db.FileBlocks.Remove(_db.FileBlocks.First(fb => fb.Id == fileBlockId)).Entity;
+                DbContext.Models.FileBlock deletedFileBlock = _db.FileBlocks.Remove(_db.FileBlocks.First(fb => fb.Id == fileBlockId)).Entity;
                 _db.SaveChanges();
-                return deletedFileBlock;
+
+                return new FileBlock()
+                {
+                    Id = deletedFileBlock.Id,
+                    FileId = deletedFileBlock.FileId,
+                    Number = deletedFileBlock.Number,
+                    Content = null
+                };
             }
             catch (Exception e)
             {

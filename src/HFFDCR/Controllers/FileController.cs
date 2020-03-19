@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HFFDCR.Models;
+using HFFDCR.Core.Models;
+using HFFDCR.DbContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -41,8 +42,8 @@ namespace HFFDCR.Controllers
             return createdFile;
         }
 
-        [HttpDelete]
-        public File Delete(long fileId)
+        [HttpDelete("{fileId}")]
+        public File Delete([FromRoute] long fileId)
         {
             try
             {

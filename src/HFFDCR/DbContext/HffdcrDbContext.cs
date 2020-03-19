@@ -1,7 +1,8 @@
-﻿using HFFDCR.Models;
+﻿using HFFDCR.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using FileBlock = HFFDCR.DbContext.Models.FileBlock;
 
-namespace HFFDCR
+namespace HFFDCR.DbContext
 {
     public class HffdcrDbContext : Microsoft.EntityFrameworkCore.DbContext
     {
@@ -12,6 +13,7 @@ namespace HFFDCR
         
         public DbSet<File> Files { get; set; }
         public DbSet<FileBlock> FileBlocks { get; set; }
+        public DbSet<Checksum> Checksums { get; set; }  
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

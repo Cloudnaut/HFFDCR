@@ -1,4 +1,4 @@
-﻿namespace HFFDCR.Models
+﻿namespace HFFDCR.Core.Models
 {
     public class File
     {

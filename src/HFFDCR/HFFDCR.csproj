@@ -10,5 +10,9 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="5.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\HFFDCR.Core\HFFDCR.Core.csproj" />
+    </ItemGroup>
+
 
 </Project>
