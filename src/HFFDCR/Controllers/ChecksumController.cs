@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace HFFDCR.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("File/{fileId}/[controller]/{fileBlockNumber}")]
     public class ChecksumController : ControllerBase
     {
         private readonly ILogger<ChecksumController> _logger;
@@ -22,39 +22,26 @@ namespace HFFDCR.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Checksum> List() => _db.Checksums;
-
-        [HttpGet("{checksumId}")]
-        public Checksum Get([FromRoute] long fileId) => _db.Checksums.First(f => f.Id == fileId);
-
-        [HttpPost]
-        public Checksum Add([FromBody] Checksum checksum)
+        public IEnumerable<Checksum> List([FromRoute] long fileId, [FromRoute] long fileBlockNumber)
         {
-            Checksum createdChecksum = _db.Checksums.Add(new Checksum()
-            {
-                FileBlockId = checksum.FileBlockId,
-                Value = checksum.Value
-            }).Entity;
-
-            _db.SaveChanges();
-
-            return createdChecksum;
-        }
-
-        [HttpDelete("{checksumId}")]
-        public Checksum Delete([FromRoute] long checksumId)
-        {
-            try
-            {
-                Checksum deletedChecksum = _db.Checksums.Remove(_db.Checksums.First(c => c.Id == checksumId)).Entity;
-                _db.SaveChanges();
-                return deletedChecksum;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            throw new NotImplementedException();
+            
+            var tst = (
+                from c in _db.Checksums
+                join fb in _db.FileBlocks
+                    on c.FileBlockId equals fb.Id
+                    into a
+                from b in a.DefaultIfEmpty()
+                select new
+                {
+                    b.Number,
+                    c.Value
+                }
+            );
+            
+            
+            
+            return _db.Checksums;
         }
     }
 }
