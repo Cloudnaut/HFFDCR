@@ -13,7 +13,6 @@ namespace HFFDCR.DbContext
         
         public DbSet<File> Files { get; set; }
         public DbSet<FileBlock> FileBlocks { get; set; }
-        public DbSet<Checksum> Checksums { get; set; }  
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

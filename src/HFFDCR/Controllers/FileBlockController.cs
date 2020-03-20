@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using HFFDCR.Core;
 using HFFDCR.Core.Models;
 using HFFDCR.DbContext;
+using HFFDCR.DbContext.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -24,67 +25,58 @@ namespace HFFDCR.Controllers
         }
 
         [HttpGet("{number}")]
-        public FileBlock Get([FromRoute] long fileId, [FromRoute] long number)
+        public FileBlockInfo Get([FromRoute] long fileId, [FromRoute] long number)
         {
             DbContext.Models.FileBlock fileBlock = _db.FileBlocks.First(fb => fb.FileId == fileId && fb.Number == number);
             
-            return new FileBlock()
+            return new FileBlockInfo()
             {
-                Id = fileBlock.Id,
-                FileId = fileBlock.FileId,
                 Number = fileBlock.Number,
-                Content = Convert.ToBase64String(fileBlock.Content)
+                Value = Convert.ToBase64String(fileBlock.Content)
             };
         }
 
         [HttpPost]
-        public FileBlock Add([FromRoute] long fileId, [FromBody] FileBlock fileBlock)
+        public IActionResult Add([FromRoute] long fileId, [FromBody] FileBlockInfo fileBlockInfo)
         {
-            DbContext.Models.FileBlock createdFileBlock;
+            FileBlock fileBlock = _db.FileBlocks.FirstOrDefault(fb => fb.FileId == fileId && fb.Number == fileBlockInfo.Number);
             
             using (MD5 md5Hash = MD5.Create())
             {
-                createdFileBlock = _db.FileBlocks.Add(new DbContext.Models.FileBlock()
-                {
-                    FileId = fileId,
-                    Number = fileBlock.Number,
-                    Content = Convert.FromBase64String(fileBlock.Content)
-                }).Entity;
-                _db.SaveChanges();
+                byte[] rawContent = Convert.FromBase64String(fileBlockInfo.Value);
                 
-                _db.Checksums.Add(new Checksum()
+                if (fileBlock == null) //Create new fileBlock
                 {
-                    FileBlockId = createdFileBlock.Id,
-                    Value = MD5Utils.GetMd5Hash(md5Hash, fileBlock.Content)
-                });
+                    _db.FileBlocks.Add(new FileBlock()
+                    {
+                        FileId = fileId,
+                        Number = fileBlockInfo.Number,
+                        Content = rawContent,
+                        Checksum = MD5Utils.GetMd5Hash(md5Hash, rawContent.ToString())
+                    });
+                }
+                else //Update existing fileBlock
+                {
+                    fileBlock.Content = rawContent;
+                    fileBlock.Checksum = MD5Utils.GetMd5Hash(md5Hash, rawContent.ToString());
+                    _db.FileBlocks.Update(fileBlock);
+                }
+
                 _db.SaveChanges();
             }
-            
-            
-            return new FileBlock()
-            {
-                Id = createdFileBlock.Id,
-                FileId = createdFileBlock.FileId,
-                Number = createdFileBlock.Number,
-                Content = Convert.ToBase64String(createdFileBlock.Content)
-            };
+
+            return StatusCode((int) HttpStatusCode.OK);
         }
 
         [HttpDelete("{number}")]
-        public FileBlock Delete([FromRoute] long fileId, [FromRoute] long number)
+        public IActionResult Delete([FromRoute] long fileId, [FromRoute] long number)
         {
             try
             {
-                DbContext.Models.FileBlock deletedFileBlock = _db.FileBlocks.Remove(_db.FileBlocks.First(fb => fb.FileId == fileId && fb.Number == number)).Entity;
+                _db.FileBlocks.Remove(_db.FileBlocks.First(fb => fb.FileId == fileId && fb.Number == number));
                 _db.SaveChanges();
 
-                return new FileBlock()
-                {
-                    Id = deletedFileBlock.Id,
-                    FileId = deletedFileBlock.FileId,
-                    Number = deletedFileBlock.Number,
-                    Content = null
-                };
+                return StatusCode((int) HttpStatusCode.OK);
             }
             catch (Exception e)
             {

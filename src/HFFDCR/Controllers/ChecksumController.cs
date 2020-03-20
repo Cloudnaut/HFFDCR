@@ -4,12 +4,13 @@ using System.Linq;
 using HFFDCR.Core.Models;
 using HFFDCR.DbContext;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace HFFDCR.Controllers
 {
     [ApiController]
-    [Route("File/{fileId}/[controller]/{fileBlockNumber}")]
+    [Route("File/{fileId}/[controller]")]
     public class ChecksumController : ControllerBase
     {
         private readonly ILogger<ChecksumController> _logger;
@@ -22,26 +23,15 @@ namespace HFFDCR.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Checksum> List([FromRoute] long fileId, [FromRoute] long fileBlockNumber)
+        public IEnumerable<FileBlockInfo> List([FromRoute] long fileId)
         {
-            throw new NotImplementedException();
-            
-            var tst = (
-                from c in _db.Checksums
-                join fb in _db.FileBlocks
-                    on c.FileBlockId equals fb.Id
-                    into a
-                from b in a.DefaultIfEmpty()
-                select new
+            return _db.FileBlocks.Where(fb => fb.FileId == fileId)
+                .OrderBy(fb => fb.Number)
+                .Select(fb => new FileBlockInfo()
                 {
-                    b.Number,
-                    c.Value
-                }
-            );
-            
-            
-            
-            return _db.Checksums;
+                    Number = fb.Number,
+                    Value = fb.Checksum
+                });
         }
     }
 }

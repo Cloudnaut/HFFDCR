@@ -33,7 +33,7 @@ namespace HFFDCR.Controllers
             File createdFile = _db.Files.Add(new File()
             {
                 Name = file.Name,
-                BlockSize = file.BlockSize,
+                BlockSizeInBytes = file.BlockSizeInBytes,
                 SizeInBytes = file.SizeInBytes
             }).Entity;
 
@@ -49,6 +49,10 @@ namespace HFFDCR.Controllers
             {
                 File deletedFile = _db.Files.Remove(_db.Files.First(f => f.Id == fileId)).Entity;
                 _db.SaveChanges();
+                
+                _db.FileBlocks.RemoveRange(_db.FileBlocks.Where(fb => fb.FileId == fileId));
+                _db.SaveChanges();
+                
                 return deletedFile;
             }
             catch (Exception e)

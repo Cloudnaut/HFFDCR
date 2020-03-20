@@ -6,5 +6,6 @@
         public long FileId { get; set; }
         public long Number { get; set; }
         public byte[] Content { get; set; }
+        public string Checksum { get; set; }
     }
 }
